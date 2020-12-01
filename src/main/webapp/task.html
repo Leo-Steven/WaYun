@@ -43,6 +43,7 @@
         function changeCategory(category) {
 			changeCurrent(category);
             cid = category;
+            clearInterval(interval);
             interval = setInterval(loading,2000)
             loading();
         }
