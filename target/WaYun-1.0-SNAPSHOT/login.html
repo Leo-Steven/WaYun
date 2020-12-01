@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"
+          name="viewport"/>
+    <title>漂流网盘，更懂你的小网盘</title>
+    <script src="js/jquery-3.3.1.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/loginstyle.css"/>
+    <script>
+        // 入口函数
+        $(function () {
+            $("#submit").click(function () {
+                // ajax异步访问
+                $.post("user/login", $("#login_form").serialize(), function (data) {
+                    // 方法回调函数
+                    if (data.flag) {
+                        // 登录成功
+                        location.href = "index.html";
+                    } else {
+                        // 登录失败
+                        $("#errorMsg").html(data.errorMsg);
+                    }
+                    // 返回false，使得表单提交后页面不会改变
+                    return false;
+                })
+            })
+        })
+    </script>
+	
+</head>
+<body>
+	<div class="login-container">
+		<div class="header-container">
+			<div class="logo">
+				<a href="index.html"><div id="logo"></div></a>
+			</div>
+			<span id="loginTitle">
+				<ul>
+					<li><a href="">官网首页</a></li>
+					<li><a href="">内容商城</a></li>
+					<li><a href="">问题反馈</a></li>
+					<li id="vip-text"><a href="">会员中心</a></li>
+				</ul>
+			</span>
+		</div>
+		<div class="bg-img index-banner1"></div>
+		<div class="login-main">
+			<div class="index-banner" id="index-bg1"></div>
+			<div class="index-banner" id="index-bg2"></div>
+			<div class="index-banner" id="index-bg3"></div>
+			<div class="index-banner" id="index-bg4"></div>
+			<div class="login-form-container">
+				<div class="login-form">
+					<div class="login_inner">
+					    <div id="login-text">账号密码登录</div>
+					    <p id="errorMsg" style="color: red;width: auto"></p>
+					    <form accept-charset="utf-8" action="user/login" id="login_form" method="post">
+					        <input id="username" class="text-input" name="username" placeholder="用户名" type="text">
+					
+					        <input id="password" class="text-input" name="password" placeholder="密码" type="password">
+					
+					        <div class="varify">
+					            <input id="check" class="text-input" name="checkCode" placeholder="验证码" type="text">
+					            <img  id="checkedImg" alt="验证码" id="checkCode" onclick="changeCode(this)" src="checkCode">
+					            <script>
+					                function changeCode(img) {
+					                    // 绑定图片的单击事件，用于切换验证码
+					                    img.src = 'checkCode?' + new Date().getTime();
+					                }
+					            </script>
+					        </div>
+					        <div class="login_btn">
+					            <button id="submit" type="button">登录</button>
+					            <div class="auto_submit">
+					                <input class="checkbox" type="checkbox">
+					                <span>自动登录</span>
+					            </div>
+							<div class="reg"><a href="regist.html">立即注册</a></div>
+					        </div>
+					    </form>
+					</div>
+					<!-- <div class="login-form-footer"></div> -->
+				</div>
+			</div>
+			<div class="focus-container">
+				<ul class="focus-content clearfix">
+					<li class="focus-content-item"><a href="javascript:changeCurrent(0);" class="focus-anchor current"></a></li>
+					<li class="focus-content-item"><a href="javascript:changeCurrent(1)" class="focus-anchor"></a></li>
+					<li class="focus-content-item"><a href="javascript:changeCurrent(2)" class="focus-anchor"></a></li>
+					<li class="focus-content-item"><a href="javascript:changeCurrent(3)" class="focus-anchor"></a></li>
+					<div style="clear: both;">	
+					</div>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+<script type="text/javascript">
+	// 设置鼠标移入动画
+	$(".login-container").mouseenter(function () {
+		$(".bg-img").css("transform", "matrix(1.05,0,0,1.05,10,9)");
+	})
+	// 鼠标移出动画
+	$(".login-container").mouseleave(function () {
+		$(".bg-img").css("transform", "matrix(1,0,0,1,0,0)");
+	})
+
+	var current = 0;
+	function autoChangeCurrent(){
+		// 首先移除当前的current类
+		removeCurrent(current)
+		current++;
+		if(current>3){
+			current=0;
+		}
+		addCurrent(current)
+	}
+	function changeCurrent(i){
+		removeCurrent(current);
+		current=i;
+		addCurrent(current);
+	}
+
+	function removeCurrent(current) {
+		switch (current) {
+			case 0:
+				$(".focus-content li a:eq(0)").removeClass("current");
+				$(".bg-img").removeClass("index-banner1")
+				break;
+			case 1:
+				$(".focus-content li a:eq(1)").removeClass("current");
+				$(".bg-img").removeClass("index-banner2")
+				break;
+			case 2:
+				$(".focus-content li a:eq(2)").removeClass("current");
+				$(".bg-img").removeClass("index-banner3")
+				break;
+			case 3:
+				$(".focus-content li a:eq(3)").removeClass("current");
+				$(".bg-img").removeClass("index-banner4")
+				break;
+		}
+	}
+	function addCurrent(current) {
+		switch (current) {
+			case 0:
+				$(".focus-content li a:eq(0)").addClass("current");
+				$(".bg-img").addClass("index-banner1")
+				break;
+			case 1:
+				$(".focus-content li a:eq(1)").addClass("current");
+				$(".bg-img").addClass("index-banner2")
+				break;
+			case 2:
+				$(".focus-content li a:eq(2)").addClass("current");
+				$(".bg-img").addClass("index-banner3")
+				break;
+			case 3:
+				$(".focus-content li a:eq(3)").addClass("current");
+				$(".bg-img").addClass("index-banner4")
+				break;
+		}
+	}
+
+
+	var interval;
+	// 每五秒自动切换背景图片
+	interval = setInterval(autoChangeCurrent,5000)
+
+
+
+
+</script>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>会员中心</title>
+    <link rel="stylesheet" href="css/vipstyle.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="js/jquery-3.3.1.js"></script>
+</head>
+<body>
+    <div class="content">
+        <div class="frame-header">
+            <div class="module-header">
+                <div class="module-header-wrapper">
+                    <!--                header部分的内容-->
+                    <dl>
+                        <div class="vip-logo"><a href="user_mana.html"><img src="imgs/login/网盘_灰度.png" alt=""></a></div>
+                        <dd class="header-apps">
+                            <span class="user-info">
+                                <span class="user-image">
+                                    <img alt="头像" src="imgs/头像.png" >
+                                </span>
+                                <span class="user-name" id="user-name">年迈的李大爷</span>
+                            </span>
+                            <span id2="vip">
+                                <a href="vip.html">
+                                    <span id="vip-info">
+                                        <span id="vip-text">开通会员</span>
+                                    </span>
+                                </a>
+                            </span>
+                            <span id="user-exit">
+                                <a href="user/exit" id="zhuxiao">注销账户</a>
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+    </div>
+        <div class="frame-main">
+            <div class="btn-box">
+    <!--            您已经是我们的会员啦-->
+                <a href="user/becomeVip">
+                <div class="vip-btn">加入会员</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $.get("user/userInfo", {}, function (data) {
+        // 获取到当前用户的用户名并显示
+        $("#user-name").html(data.name)
+        if (data.vip === 'Y'){
+            $(".btn-box").html("您已经是我们的会员啦")
+        }else {
+            $(".btn-box").html("<a href=\"user/becomeVip\">\n" +
+                "                <div class=\"vip-btn\">加入会员</div>\n" +
+                "                </a>")
+        }
+    })
+</script>
+</html>

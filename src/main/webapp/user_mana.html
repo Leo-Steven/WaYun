@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户界面</title>
+    <script src="js/jquery-3.3.1.js"></script>
+    <link href="css/userindex.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/usrmanastyle.css">
+    <script>
+        // 入口函数
+        $(function () {
+            // 页面加载完成后默认 显示 ‘所有文件’
+            changeCategory(0);
+            // 加载用户姓名
+            $.get("user/userInfo", {}, function (data) {
+                // 获取到当前用户的用户名并显示
+                $("#user-name").html(data.name)
+            })
+            // 提交表单队文件进行删除
+            $("#download-btn").click(download);
+            $("#del-btn").click(del);
+        })
+
+        // 改变显示文件类别
+        function changeCategory(cid) {
+            changeCurrent(cid)
+            $.post("file/findAll", {cid: cid}, function (data) {
+                loading(cid, data);
+            })
+        }
+
+        function download() {
+            var checked = $(".file-container input[type='checkbox']");
+            checked.each(function () {
+                if ($(this).prop("checked")) {
+                    $.post("file/download", {fid: $(this).val()});
+                }
+            })
+        }
+
+        function del() {
+            var checked = $(".file-container input[type='checkbox']");
+            checked.each(function () {
+                if ($(this).prop("checked")) {
+                    $.post("file/del", {fid: $(this).val()});
+                }
+            })
+            window.location.reload();
+        }
+
+        // 加载对应文件类别的所有文件
+        function loading(cid, data) {
+            // 请求文件图片，img，audio，video，others都统一图标，img则为图片
+            // data返回的是一个对象数组
+
+            /*
+            格式：
+            <div class="file_container" >
+            <div class="img_container" >
+                <a href="imgs/文件.png">
+                    <img src="imgs/文件.png" alt="">
+                </a>
+            </div>
+            <span class="filename">文件名</span>
+            </div>
+             */
+            var content = '';
+            var preUrl = "http://127.0.0.1:8080/";
+            // 如果是在图片页面，则对图片进行
+            if (cid === 1) {
+                for (var i = 0; i < data.length; i++) {
+
+                    var url = encodeURIComponent((preUrl + data[i].faddress).replaceAll("\\","/"));
+
+                    content += '<div class="file_container" >\n' +
+                        '            <div class="img_container" >\n' +
+                        '               <a href="http://127.0.0.1:8012/onlinePreview?url=' + url + '" target="_blank">\n' +
+                        '                   <img src="' + data[i].faddress + '" alt="">\n' +
+                        '               </a>\n' +
+                        '            </div>\n' +
+                        '            <span class="imgFilename">' + data[i].fname + '</span>\n' +
+                        '        </div>';
+                }
+            } else {
+                /*
+                这是非图片栏的文件显示格式
+                <div class="file-container">
+                    <div class="check">
+                        <input type="checkbox" name="checked" value="id">
+                    </div>
+                    <div class="file-info">
+                        <span class="file-img"><img src="imgs/文件.png" alt=""></span>
+                        <span class="file-name">文件名</span>
+                    </div>
+                </div>
+                 */
+                for (var i = 0; i < data.length; i++) {
+                    var url = encodeURIComponent((preUrl + data[i].faddress).replaceAll("\\","/"));
+                    if (data[i].cid === 1) {
+                        content += '<div class="file-container">\n' +
+                            '                    <div class="check">\n' +
+                            '                        <input type="checkbox" name="checked" value="' + data[i].fid + '">\n' +
+                            '                    </div>\n' +
+                            '               <a href="http://127.0.0.1:8012/onlinePreview?url=' + url + '" target="_blank">\n' +
+                            '                    <div class="file-info">\n' +
+                            '                        <span class="file-img"><img src="imgs/图片.png" alt=""></span>\n' +
+                            '                        <span class="file-name">' + data[i].fname + '</span>\n' +
+                            '                    </div>\n' +
+                            '               </a>\n' +
+                            '                </div>'
+                    } else if (data[i].cid === 2) {
+                        content += '<div class="file-container">\n' +
+                            '                    <div class="check">\n' +
+                            '                        <input type="checkbox" name="checked" value="' + data[i].fid + '">\n' +
+                            '                    </div>\n' +
+                            '               <a href="http://127.0.0.1:8012/onlinePreview?url=' + url + '" target="_blank">\n' +
+                            '                    <div class="file-info">\n' +
+                            '                        <span class="file-img"><img src="imgs/音频.png" alt=""></span>\n' +
+                            '                        <span class="file-name">' + data[i].fname + '</span>\n' +
+                            '                    </div>\n' +
+                            '               </a>\n' +
+                            '                </div>'
+                    } else if (data[i].cid === 3) {
+                        content += '<div class="file-container">\n' +
+                            '                    <div class="check">\n' +
+                            '                        <input type="checkbox" name="checked" value="' + data[i].fid + '">\n' +
+                            '                    </div>\n' +
+                            '               <a href="http://127.0.0.1:8012/onlinePreview?url=' + url + '" target="_blank">\n' +
+                            '                    <div class="file-info">\n' +
+                            '                        <span class="file-img"><img src="imgs/视频.png" alt=""></span>\n' +
+                            '                        <span class="file-name">' + data[i].fname + '</span>\n' +
+                            '                    </div>\n' +
+                            '               </a>\n' +
+                            '                </div>'
+                    } else if (data[i].cid === 4) {
+                        content += '<div class="file-container">\n' +
+                            '                    <div class="check">\n' +
+                            '                        <input type="checkbox" name="checked" value="' + data[i].fid + '">\n' +
+                            '                    </div>\n' +
+                            '               <a href="http://127.0.0.1:8012/onlinePreview?url=' + url + '" target="_blank">\n' +
+                            '                    <div class="file-info">\n' +
+                            '                        <span class="file-img"><img src="imgs/文件.png" alt=""></span>\n' +
+                            '                        <span class="file-name">' + data[i].fname + '</span>\n' +
+                            '                    </div>\n' +
+                            '               </a>\n' +
+                            '                </div>'
+                    } else {
+                        content += '<div class="file-container">\n' +
+                            '                    <div class="check">\n' +
+                            '                        <input type="checkbox" name="checked" value="' + data[i].fid + '">\n' +
+                            '                    </div>\n' +
+                            '               <a href="http://127.0.0.1:8012/onlinePreview?url=' + url + '" target="_blank">\n' +
+                            '                    <div class="file-info">\n' +
+                            '                        <span class="file-img"><img src="imgs/文档.png" alt=""></span>\n' +
+                            '                        <span class="file-name">' + data[i].fname + '</span>\n' +
+                            '                    </div>\n' +
+                            '               </a>\n' +
+                            '                </div>'
+                    }
+                }
+            }
+            $("#content").html(content);
+        }
+    </script>
+</head>
+<body>
+<div id="frame-all">
+    <div class="frame-header">
+        <div class="module-header">
+            <div class="module-header-wrapper">
+                <!--                header部分的内容-->
+                <dl>
+					<dd class="logo-usermana"><a href="user_mana.html"><img src="imgs/login/网盘_灰度.png" alt=""></a></dd>
+					<dd class="all-box">
+						<a href="user_mana.html">
+							<span class="all">网盘</span>
+							<span class="select-bar" id="all-bar"></span>
+						</a>
+					</dd>
+					<dd class="task-box"><a href="task.html"><span class="task">传输列表</span>
+					</a></dd>
+                    <dd class="header-apps">
+                        <span class="user-info">
+                            <span class="user-image">
+                                <img alt="头像" src="imgs/头像.png" >
+                            </span>
+                            <span class="user-name" id="user-name">年迈的李大爷</span>
+                        </span>
+                        <span id2="vip">
+                            <a href="vip.html">
+                                <span id="vip-info">
+                                    <span id="vip-text">会员中心</span>
+                                </span>
+                            </a>
+                        </span>
+                        <span id="user-exit">
+                            <a href="user/exit" id="zhuxiao">注销账户</a>
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+	
+	
+    <div class="frame-aside" id="layoutAside">
+        <div class="menuAside">
+            <ul class="fileCategories">
+
+                <li class="fileCategory current">
+                    <a href="javascript:changeCategory(0);">
+                        <span class="text">
+                            <span>全部文件</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="fileCategory">
+                    <a href="javascript:changeCategory(1);">
+                        <span class="text">
+                            <span>图片</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="fileCategory">
+                    <a href="javascript:changeCategory(2);">
+                        <span class="text">
+                            <span>音频</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="fileCategory">
+                    <a href="javascript:changeCategory(3);">
+                        <span class="text">
+                            <span>视频</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="fileCategory">
+                    <a href="javascript:changeCategory(4);">
+                        <span class="text">
+                            <span>文件</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="fileCategory">
+                    <a href="javascript:changeCategory(5);">
+                        <span class="text">
+                            <span>其他</span>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+	
+	
+    <div id="frame-main">
+        <hr>
+        <div class="upload-container">
+            <div class="filePicker">
+                <form action="" enctype="multipart/form-data" id="upload-form" method="post">
+                    <label>上传</label>
+                    <input type="file" name="filename" id="fileInput" onchange="uploadFile()">
+                </form>
+            </div>
+        </div>
+        <span style="position: relative;left: -85px;color: #9B9B9B;font-size: 13px;">全部文件</span>
+        <form action="" id="file-checked" method="post">
+            <div class="operation-bar">
+                <button id="download-btn" type="button">下载</button>
+                <button id="del-btn" type="button">删除</button>
+            </div>
+            <div id="content">
+                <div class="file_container">
+                    <!--                <div class="img_container" >-->
+                    <!--                    <a href="imgs/文件.png">-->
+                    <!--                        <img src="imgs/文件.png" alt="">-->
+                    <!--                    </a>-->
+                    <!--                </div>-->
+                    <!--                <span class="filename">文件名</span>-->
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="check">
+                            <input name="checked" type="checkbox" value="fid1">
+                        </div>
+                        <div class="file-info">
+                            <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                            <span class="file-name">文件名</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+
+<script>
+    var current = 0;
+    function changeCurrent(i){
+        removeCurrent(current);
+        current=i;
+        addCurrent(current);
+    }
+
+    function removeCurrent(current) {
+        switch (current) {
+            case 0:
+                $(".fileCategories li:eq(0)").removeClass("current");
+                break;
+            case 1:
+                $(".fileCategories li:eq(1)").removeClass("current");
+                break;
+            case 2:
+                $(".fileCategories li:eq(2)").removeClass("current");
+                break;
+            case 3:
+                $(".fileCategories li:eq(3)").removeClass("current");
+                break;
+            case 4:
+                $(".fileCategories li:eq(4)").removeClass("current");
+                break;
+            case 5:
+                $(".fileCategories li:eq(5)").removeClass("current");
+                break;
+        }
+    }
+    function addCurrent(current) {
+        switch (current) {
+            case 0:
+                $(".fileCategories li:eq(0)").addClass("current");
+                break;
+            case 1:
+                $(".fileCategories li:eq(1)").addClass("current");
+                break;
+            case 2:
+                $(".fileCategories li:eq(2)").addClass("current");
+                break;
+            case 3:
+                $(".fileCategories li:eq(3)").addClass("current");
+                break;
+            case 4:
+                $(".fileCategories li:eq(4)").addClass("current");
+                break;
+            case 5:
+                $(".fileCategories li:eq(5)").addClass("current");
+                break;
+        }
+    }
+
+    function uploadFile() {
+        var fd = new FormData(document.getElementById("upload-form"));
+        $.ajax({
+            url: 'file/upload',
+            type: 'post',
+            data: fd,
+            processData: false,
+            contentType: false
+        })
+    }
+
+</script>
+</html>

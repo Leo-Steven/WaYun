@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input type="file" onchange="uploadfile(this)">
+
+
+</body>
+<script>
+    function uploadfile(note) {
+        console.log(note.files[0])
+        var fr = new FileReader();
+        fr.readAsBinaryString(note.files[0])
+
+        // 监听读取成功调用方法
+        fr.onload = function (event) {
+            console.log(event)
+            console.log(event.target.result)
+            
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="js/formcheck.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/registstyle.css"/>
+    <script>
+        $(function () {
+            // 表单校验
+            // 为各个输入框绑定离焦事件
+            $("#username").blur(checkUserName);
+            $("#telephone").blur(checkTelephone);
+            $("#name").blur(checkName);
+            $("#password").blur(checkPassword);
+            $("#email").blur(checkEmail);
+            $("#birthday").blur(checkBirthday);
+            $("#check").blur(checkCheck);
+
+            // 绑定表单提交
+            $("#regist_form").submit(function () {
+                // 使用异步方式提交，是为了获取服务器数据，因为前台是使用的html做视图，不能直接从
+                // servlet中提取相关的域对象获取值，只能通过ajax 获取响应值
+                var flag = checkCheck() && checkBirthday() && checkEmail() && checkPassword()
+                    && checkUserName() && checkName() && checkTelephone()
+                if (flag) {
+                    // 如果表单校验通过，则通过异步的方式提交数据到servlet中进行用户注册
+                    $.post("user/regist", $("#regist_form").serialize(), function (data) {
+                        // 回调函数，用于后台提供的提示   data 数据格式：{flag:boolean,errorMsg:"信息"}
+                        // 1.
+                        if (data.flag) {
+                            // 注册成功，跳转到注册成功页面
+                            $("#errorMsg").html("");
+                            // TODO 此处的注册成功页面需要完成
+                            location.href = "register_ok.html";
+                        } else {
+                            // 注册失败，提示错误信息
+                            $("#errorMsg").html(data.errorMsg);
+                        }
+
+                    })
+                }
+                //返回false，页面就不会进行跳转，只需要进行表单校验，并然后提交数据到servlet即可
+                return false;
+            })
+
+        })
+
+    </script>
+</head>
+<body>
+<div class="content">
+	<div class="reg-bg"></div>
+	<div class="reg-logo"></div>
+	<div class="regist_inner">
+		<div id="reg-text">
+			<span id="reg-wel">欢迎注册</span>
+			<span id="login-text">已有帐号？<a href="login.html">登录</a></span>
+		</div>
+		<div class="regist_form">
+			<form action="user/regist" id="regist_form">
+				<div class="form-item">
+					<label for="username">用户名</label>
+					<input id="username" name="username" placeholder="请输入账号" type="text">					
+				</div>
+				<div class="form-item">
+					<label for="password">密&emsp;码</label>
+					<input id="password" name="password" placeholder="请输入密码" type="password">					
+				</div>
+				<div class="form-item">
+					<label for="email">邮&emsp;箱</label>
+					<input id="email" name="email" placeholder="请输入Email" type="email">					
+				</div>
+				<div class="form-item">
+					<label for="name">姓&emsp;名</label>
+					<input id="name" name="name" placeholder="请输入真实姓名" type="text">					
+				</div>
+				<div class="form-item">
+					<label for="telephone">电&emsp;话</label>
+					<input id="telephone" name="telephone" type="tel" placeholder="请输入电话号码">					
+				</div>
+				<div class="form-item">
+					<span id="form-gender">性&emsp;别</span>
+					<label for="male">男</label>
+					<input checked id="male" name="gender" type="radio" value="男">
+					<label for="female">女</label>
+					<input id="female" name="gender" type="radio" value="女">
+				</div>	
+				<div class="form-item">
+					<label for="birthday">生&emsp;日</label>
+					<input id="birthday" name="birthday" placeholder="年/月/日" type="date">
+				</div>	
+
+				<div class="varify">
+					<label for="check">验证码</label>
+					<input id="check" name="checkCode" placeholder="请输入验证码" type="text">
+					<img id="checkedImg" alt="验证码" onclick="changeCode(this)" src="checkCode">
+					<script>
+						function changeCode(img) {
+							img.src = 'checkCode?' + new Date().getTime();
+						}
+					</script>
+				</div>
+				<input class="submit" type="submit" value="注册">
+			</form>
+			<span id="errorMsg" style="width: auto;color: red"></span>
+		</div>
+	</div>
+</div>
+</body>
+</html>

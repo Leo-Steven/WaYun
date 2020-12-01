@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>哇，这儿有个云盘~~</title>
+	<script src="js/jquery-3.3.1.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		// 判断当前是否登录账户， 如果已登录，则进入用户管理界面，否则进入登录界面
+		// AJAX不支持response页面跳转，AJAX适用于局部页面的请求刷新
+		$(function(){
+			$.get("user/hasLogin",{},function (data) {
+				if(data.flag){
+					window.location="user_mana.html";
+				}else
+				{
+					window.location="login.html";
+				}
+			})
+		})
+	</script>
+</head>
+<body>
+
+</body>
+</html>

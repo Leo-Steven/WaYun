@@ -1,0 +1,255 @@
+*{
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+body{
+	max-width: 1536px;
+	overflow: hidden;
+}
+.clearfix::after{
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.login-container{
+	min-width: 1200px;
+	height: 720px;
+	overflow: hidden;
+}
+
+.header-container{
+	height: 3.75rem;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	background-color: rgba(255,255,255,0);
+	z-index: 15;
+}
+#logo{
+	height: 2.75rem;
+	width: 140px;
+	margin-top: 0.8125rem;
+	margin-left: 1.5625rem;
+	background-image: url(../imgs/login/网盘_灰度.png);
+	background-repeat: no-repeat;
+	float: left;
+	/* background-size: 100%; */
+}
+#loginTitle{
+	float: right;
+	display: inline-block;
+	color: white;
+	/* line-height: 60px; */
+}
+
+#loginTitle li{
+	display: inline-block;
+	margin-right: 30px;
+	margin-top: 23px;
+	font-size: 14px;
+	font-family: Microsoft YaHei,SimHei,Tahoma !important;
+}
+
+#loginTitle li:last-child{
+	margin-right: 50px;
+}
+
+#loginTitle li a{
+	color: white;
+	text-decoration: none;
+}
+
+#vip-text{
+	display: inline-block;
+	width: 76px;
+	height: 19.2px;
+	text-align: center;
+}
+
+#vip-text a{
+	padding: 4px 10px;
+	background: linear-gradient(-139deg,#f0d7a3 0,#efcb85 100%) #f0d7a3;
+	border-radius: 30px;
+	color: black !important;
+}
+
+.login-main{
+	position: relative;
+	top: 10%;
+	width: 68.875rem;
+	height: 90%;
+	margin: 0 auto;
+	clear: both;
+	z-index: 3;
+}
+
+.login-form-container{
+	position: absolute;
+	width: 352px;
+	height: 350px;
+	right: 0;
+}
+
+.login-form{
+	background-color: white;
+	opacity: 0.7;
+	position: relative;
+	top: 169px;
+	/* height: 100%; */
+	min-height: 100%;
+	width: 22rem;
+	border-radius: 5px;
+	box-shadow: rgba(0,0,0,0.3) 0 0 50px;
+}
+
+
+.login_inner{
+	width: 312px;
+	height: 330px;
+	/*overflow: hidden;*/
+	margin: 0 auto;
+}
+
+
+#login-text{
+	font-size: 18px;
+	padding-top: 30px;
+	padding-bottom: 8px;
+	font-weight: bold;
+}
+#errorMsg{
+	min-height: 28px;
+	height: auto;
+}
+
+.text-input{
+	display: block;
+	/* padding: 7px 10px; */
+	padding-left: 16px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	height: 40px;
+	width: 100%;
+	/* width: 284px; */
+	margin-bottom: 5px;
+}
+
+#check{
+	display: inline-block;
+	width: 50%;
+	margin-right: 20px;
+}
+
+#submit{
+	width: 100%;
+	height: 41px;
+	color: #000000;
+	background-color: #09aaff;
+	border-radius: 4px;
+	border-style: none;
+	color: #fff;
+	font-size: 16px;
+	cursor: pointer;
+	margin-top: 25px;
+	margin-bottom: 20px;
+}
+.auto_submit{
+	display: inline-block;
+	width: auto;
+}
+
+.reg{
+	display: inline-block;
+	width: auto;
+	float: right;
+	margin-right: 5px;
+}
+
+.login-form-footer{
+	width: 100%;
+	min-height: 65px;
+	z-index: 20;
+	background-color: rgba(0,0,0,0.3) 0 0 50px;
+}
+.bg-img{
+	transition-timing-function: linear;
+	transition-delay: 0s;
+	transition-property: all;
+	transition-duration: 500ms;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 3;
+}
+.bg-img:hover{
+	transform: matrix(1.05,0,0,1.05,10,9);
+}
+/* 以下为不同的背景图下的背景图像 */
+.index-banner1{
+	background: url(../imgs/login/bg1.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.index-banner2{
+	background: url(../imgs/login/bg2.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.index-banner3{
+	background: url(../imgs/login/bg3.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.index-banner4{
+	background: url(../imgs/login/bg4.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+/* 下方背景图片的控点 */
+.focus-container{
+	position: absolute;
+	/* left: 50%; */
+	bottom: 10px;
+	width: 100%;
+	text-align: center;
+}
+
+.focus-anchor{
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	opacity: 0.5;
+	border-radius: 8px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.focus-content{
+	display: inline-block;
+	margin: 0 auto;
+	list-style-type: none;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+/* 鼠标滑过时高亮 */
+.focus-anchor:hover{
+	opacity: 1;
+}
+/* 当前的背景图时，高亮 */
+.current{
+	opacity: 1 !important;
+}
+
+.focus-content-item{
+	float: left;
+}
+#checkedImg{
+	position: relative;
+	top: 10px;
+}

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>任务中心</title>
+    <link rel="stylesheet" href="css/userindex.css">
+    <link rel="stylesheet" href="css/taskstyle.css">
+    <script src="js/jquery-3.3.1.js"></script>
+    <script>
+
+        $(function () {
+            // 页面加载完成后默认 显示 ‘所有文件’
+            changeCategory(0);
+            // 加载用户姓名
+            $.get("user/userInfo", {}, function (data) {
+                // 获取到当前用户的用户名并显示
+                $("#user-name").html(data.name)
+                if (!data.vip == 'Y'){
+                    $(".increase").css("display","none")
+                }
+            })
+        })
+
+        // 是否应该是当正在进行中的任务不为空的时候每隔 0.5 s 发送一次请求查询？
+        var current = 0;
+        var interval;
+        // cid --- 0 代表下载任务(默认)    1 --- 代表上传任务
+        var cid = current;
+        // 请求对应的 任务列表
+        $(function () {
+            loading();
+            // 设置定时器，每隔 0.5 秒发送异步请求同步页面数据
+            interval = setInterval(loading,2000)
+        })
+
+        function deleteTask() {
+            $.get("file/delTask",{fid:$(this).attr("fid"),cid:cid},function () {
+                loading();
+            })
+        }
+
+
+        function changeCategory(category) {
+			changeCurrent(category);
+            cid = category;
+            interval = setInterval(loading,2000)
+            loading();
+        }
+
+        function loading() {
+            $.post("file/findTask", {cid: cid}, function (data) {
+                // 进行页面显示，此时有两种情况
+                // data的数据--- TransferIofo对象 --- 其中isTransfer 判断暂停和进行，  count === endIndex时则任务完成
+                var unfinished = '';
+                var finished = '';
+                for (let i = 0; i < data.length; i++) {
+                    var oldFile = data[i].oldFile;
+                    var fileName = oldFile.slice(oldFile.lastIndexOf("\\")+1);
+                    if (!data[i].finished) {
+                        // 1. 未完成任务
+                        if (data[i].transfer) {
+                            // 1.1 正在传输的任务（正在进行）
+
+                            unfinished += '<div class="file-container">\n' +
+                                '                            <div class="check">\n' +
+                                '                                <input name="checked" type="checkbox" value="fid1">\n' +    // TODO 这里需要替换为文件唯一标识
+                                '                            </div>\n' +
+                                '                            <div class="file-info">\n' +
+                                '                                <span class="file-img"><img alt="" src="imgs/文件.png"></span>\n' +
+                                '                                <span class="file-name">'+fileName+'</span>\n' +
+                                '                            </div>\n' +
+                                '                            <div class="increase" style="float: left;line-height: 44px; margin-right: 10px;" ><span style="color: #e6db6a;">会员提速中</span></div>\n' +
+                                '                            <div class="task-msg"><span id="done">'+getSize(data[i].count)+'</span><span id="total">/'+getSize(data[i].endIndex)+'</span></div>\n' +
+                                '                            <div class="task-control">\n' +
+                                '                                <span class="task-process running" fid="'+data[i].taskId+'"></span>\n' +
+                                '                                <span class="delete-task" fid="'+data[i].taskId+'"></span>\n' +
+                                '                            </div>\n' +
+                                '                        </div>'
+                        } else {
+                            console.log(data[i].transfer)
+                            // 1.2 暂停中的任务
+                            unfinished += '<div class="file-container">\n' +
+                                '                            <div class="check">\n' +
+                                '                                <input name="checked" type="checkbox" value="fid1">\n' +    // TODO 这里需要替换为文件唯一标识
+                                '                            </div>\n' +
+                                '                            <div class="file-info">\n' +
+                                '                                <span class="file-img"><img alt="" src="imgs/文件.png"></span>\n' +
+                                '                                <span class="file-name">'+fileName+'</span>\n' +
+                                '                            </div>\n' +
+                                '                            <div class="task-msg"><span id="done">'+getSize(data[i].count)+'</span><span id="total">/'+getSize(data[i].endIndex)+'</span></div>\n' +
+                                '                            <div class="task-control">\n' +
+                                '                                <span class="task-process pause" fid="'+data[i].taskId+'"></span>\n' +
+                                '                                <span class="delete-task" fid="'+data[i].taskId+'"></span>\n' +
+                                '                            </div>\n' +
+                                '                        </div>'
+
+                        }
+                    } else {
+                        console.log(data[i].finished)
+                        // 2， 已完成任务
+                        finished += '<div class="file-container">\n' +
+                            '                            <div class="check">\n' +
+                            '                                <input name="checked" type="checkbox" value="fid1">\n' +
+                            '                            </div>\n' +
+                            '                            <div class="file-info">\n' +
+                            '                                <span class="file-img"><img alt="" src="imgs/文件.png"></span>\n' +
+                            '                                <span class="file-name">'+fileName+'</span>\n' +
+                            '                            </div>\n' +
+                            '                            <div class="task-control">\n' +
+                            '                                <span class="delete-task" fid="'+data[i].taskId+'"></span>\n' +
+                            '                            </div>\n' +
+                            '                        </div>'
+                    }
+                }
+                // 如果未完成的任务为空，则停止发送请求
+
+                if (unfinished === ''){
+                    clearInterval(interval);
+                }
+                // 3. 更新页面内容
+                $(".unfinished").html(unfinished);
+                $(".finished").html(finished);
+
+                // 绑定单击事件
+                $(".task-process").click(changeProcess)
+                $(".delete-task").click(deleteTask)
+            })
+        }
+
+        function changeProcess() {
+            // 1. 切换暂停和继续状态图标
+            $(this).toggleClass("running","pause");
+            $(this).toggleClass("pause","running");
+            // 2. 改变该任务的传输状态
+            $.get("file/changeProcess",{fid:$(this).attr("fid"),cid:cid},function () {
+
+            })
+        }
+
+
+    </script>
+</head>
+
+<body>
+<div id="frame-all">
+    <div class="frame-header">
+        <div class="module-header">
+            <div class="module-header-wrapper">
+                <!--                header部分的内容-->
+                <dl>
+    				<dd class="logo-usermana"><a href="user_mana.html"><img src="imgs/login/网盘_灰度.png" alt=""></a></dd>
+    				<dd class="all-box">
+    					<a href="user_mana.html">
+    						<span class="all">网盘</span>
+    					</a>
+    				</dd>
+    				<dd class="task-box"><a href="task.html"><span class="task">传输列表</span><span class="select-bar" id="task-bar"></span></a></dd>
+                    <dd class="header-apps">
+                        <span class="user-info">
+                            <span class="user-image">
+                                <img alt="头像" src="imgs/头像.png" >
+                            </span>
+                            <span class="user-name" id="user-name">年迈的李大爷</span>
+                        </span>
+                        <span id2="vip">
+                            <a href="vip.html">
+                                <span id="vip-info">
+                                    <span id="vip-text">会员中心</span>
+                                </span>
+                            </a>
+                        </span>
+                        <span id="user-exit">
+                            <a href="user/exit" id="zhuxiao">注销账户</a>
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="frame-aside" id="layoutAside">
+        <div class="menuAside">
+            <ul class="fileCategories">
+                <li class="fileCategory current">
+                    <a href="javascript:changeCategory(0);">
+                        <span class="text">
+                            <span>下载任务</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="fileCategory">
+                    <a href="javascript:changeCategory(1);">
+                        <span class="text">
+                            <span>上传任务</span>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="frame-main">
+        <hr>
+        <form action="" id="file-checked" method="post">
+            <div id="content">
+                <p class="finishInfo">正在进行</p>
+                <div class="file_container finishedTask">
+                    <!--                <div class="img_container" >-->
+                    <!--                    <a href="imgs/文件.png">-->
+                    <!--                        <img src="imgs/文件.png" alt="">-->
+                    <!--                    </a>-->
+                    <!--                </div>-->
+                    <!--                <span class="filename">文件名</span>-->
+                    <div class="unfinished">
+                        <div class="file-container">
+                            <div class="check">
+                                <input name="checked" type="checkbox" value="fid1">
+                            </div>
+                            <div class="file-info">
+                                <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                                <span class="file-name">文件名</span>
+                            </div>
+							<div class="increase" style="float: left;line-height: 44px; margin-right: 10px;" ><span style="color: #e6db6a;">会员提速中</span></div>
+                            <div class="task-msg"><span id="done">2000mb</span><span id="total">/5gb</span></div>
+                            <div class="task-control">
+                                <span class="task-process pause" fid="fid"></span>
+                                <span class="delete-task"></span>
+                            </div>
+                        </div>
+                        <div class="file-container">
+                            <div class="check">
+                                <input name="checked" type="checkbox" value="fid2">
+                            </div>
+                            <div class="file-info">
+                                <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                                <span class="file-name">文件名</span>
+                            </div>
+                            <div class="task-control">
+                                <span class="task-process running" fid="fid"></span>
+                                <span class="delete-task"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="finishInfo">已完成</p>
+                <div class="file_container unfinishedTask">
+                    <div class="finished">
+                        <div class="file-container">
+                            <div class="check">
+                                <input name="checked" type="checkbox" value="fid3">
+                            </div>
+                            <div class="file-info">
+                                <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                                <span class="file-name">文件名</span>
+                            </div>
+                            <div class="task-control">
+                                <span class="delete-task"></span>
+                            </div>
+                        </div>
+                        <div class="file-container">
+                            <div class="check">
+                                <input name="checked" type="checkbox" value="fid4">
+                            </div>
+                            <div class="file-info">
+                                <span class="file-img"><img alt="" src="imgs/文件.png"></span>
+                                <span class="file-name">文件名</span>
+                            </div>
+                            <div class="task-control">
+                                <span class="delete-task"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+<script>
+    function changeCurrent(i){
+        removeCurrent(current);
+        current=i;
+        addCurrent(current);
+    }
+
+    function removeCurrent(current) {
+        switch (current) {
+            case 0:
+                $(".fileCategories li:eq(0)").removeClass("current");
+                break;
+            case 1:
+                $(".fileCategories li:eq(1)").removeClass("current");
+                break;
+        }
+    }
+    function addCurrent(current) {
+        switch (current) {
+            case 0:
+                $(".fileCategories li:eq(0)").addClass("current");
+                break;
+            case 1:
+                $(".fileCategories li:eq(1)").addClass("current");
+                break;
+        }
+    }
+    
+    function getSize(size) {
+        var fileSize = size + "BYTE";
+        var dotSize = 0;
+        if (size > 1024){
+            dotSize = size/1024;
+            size = Math.floor(size/1024);
+            dotSize = Math.floor((dotSize/size - 1)*100);
+
+            fileSize = size + dotSize*0.01 + "KB";
+            if (size > 1024){
+                dotSize = size/1024;
+                size = Math.floor(size/1024);
+                dotSize = Math.floor((dotSize/size - 1)*100);
+                fileSize = size + dotSize*0.01 + "MB";
+
+                if (size > 1024){
+                    dotSize = size/1024;
+                    size = Math.floor(size/1024);
+                    dotSize = Math.floor((dotSize/size - 1)*100);
+                    fileSize = size + dotSize*0.01 + "GB";
+
+                }
+            }
+        }
+        return fileSize;
+    }
+</script>
+</html>

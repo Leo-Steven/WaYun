@@ -1,0 +1,53 @@
+
+.filePicker{
+    width: 86px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    color: #fff;
+    background: #00b7ee;
+    border-radius: 5px;
+}
+.filePicker input[type="file"] {
+    position: relative;
+    top: -44px;
+    left: 0px;
+    width: 86px;
+    height: 36px;
+    opacity: 0;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 50;
+}
+
+.upload-container{
+    line-height: 36px;
+    width: 86px;
+    height: 36px;
+    display: inline-block;
+}
+.operation-bar{
+    position: absolute;
+    top: 0;
+    padding-top: 5px;
+    height: 55px;
+    width: 100%;
+    line-height: 55px;
+    border-bottom: 1px solid black;
+}
+.operation-bar button{
+    height: 36px;
+    width: 86px;
+    color: #00b7ee;
+    position: absolute;
+    top: 10px;
+    margin-left: 10px;
+    border-radius: 5px;
+}
+
+#download-btn{
+    left: 85px;
+}
+#del-btn{
+    left: 180px;
+}
